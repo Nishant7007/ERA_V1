@@ -26,7 +26,7 @@
 
 
 ### Solution:
-    The main code is in this [notebook]{https://github.com/Nishant7007/ERA_V1/blob/main/Session_8%20_Batch_Normalization_And_Regularization/main.ipynb}
+    The main code is in this [notebook](https://github.com/Nishant7007/ERA_V1/blob/main/Session_8%20_Batch_Normalization_And_Regularization/main.ipynb)
 ####
     Following are some of the sample images:
  ![Getting Started](sample_images.png)   
