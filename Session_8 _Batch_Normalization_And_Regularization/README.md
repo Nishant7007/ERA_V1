@@ -34,7 +34,7 @@ Following are the accuracies for all the three normalisaton techniques:
 |-----------------------|--------------------------|--------------------|-------------------|
 | Batch Normalisation   | 38,458                   | 74.77%             | 74.05%            |
 | Layer Normalisation   | 38,458                   | 72.53%             | 72.91%            |
-| Group Normalisation   | 38,458                   | 73.28z5            | 72.90%            |
+| Group Normalisation   | 38,458                   | 73.28%         | 72.90%            |
 ####
     Following are some of the sample images:
  ![Getting Started](sample_images.png)   
