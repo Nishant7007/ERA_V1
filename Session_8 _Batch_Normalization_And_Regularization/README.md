@@ -33,8 +33,8 @@ Following are the accuracies for all the three normalisaton techniques:
 | **Normalisation**     | **Number of parameters** | **Train Accuracy** | **Test Accuracy** | 
 |-----------------------|--------------------------|--------------------|-------------------|
 | Batch Normalisation   | 38,458                   | 74.77%             | 74.05%            |
-| Layer Normalisation   | 38,458                   | 72.53%             | 72.91%              |
-| Group Normalisation   | 38,458                   |                    |                   |
+| Layer Normalisation   | 38,458                   | 72.53%             | 72.91%            |
+| Group Normalisation   | 38,458                   | 73.28z5            | 72.90%            |
 ####
     Following are some of the sample images:
  ![Getting Started](sample_images.png)   
@@ -69,7 +69,7 @@ Following are the accuracies for all the three normalisaton techniques:
     we then tried Group Normalisation. Following are the results of last 10 epochs
  ![Getting Started](GN_epochs.png)
 ####
-     We got training accuracy of 17.38% and test accuracy of 18.50%
+     We got training accuracy of 73.28% and test accuracy of 72.90%72.90%
 ####
     Following are the accuracy and loss plots for training and test set
  ![Getting Started](performance_GN.png)
