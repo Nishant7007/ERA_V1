@@ -1,34 +1,4 @@
-from __future__ import print_function
-import warnings
-warnings.filterwarnings("ignore")
-!pip install summary
 from torchvision import datasets, transforms
-from __future__ import print_function
-import warnings
-warnings.filterwarnings("ignore")
-
-
-class Transforms:
-    def __init__(self):
-        self.train_transforms = transforms.Compose([
-                                transforms.ToTensor(),
-                                transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784])
-                                                     ])
-
-        self.test_transforms = transforms.Compose([
-                                transforms.ToTensor(),
-                                transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784])
-        ])
-
-    def download_train_data(self):
-        train = datasets.CIFAR10('./data', train=True, download=True, transform=self.train_transforms)
-        return train
-
-    def download_test_data(self):
-        test = datasets.CIFAR10('./data', train=False, download=False, transform=self.test_transforms)
-        return test
-
-from __future__ import print_function
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
@@ -37,6 +7,29 @@ import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 import random
+
+class Transforms:
+    def __init__(self):
+      self.train_transforms = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.ColorJitter(brightness=0.10, contrast=0.1, saturation=0.10, hue=0.1),
+            transforms.RandomRotation((-7.0, 7.0), fill=(1,)),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+      
+      self.test_transforms = transforms.Compose([
+          transforms.ToTensor(),
+          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+      ])
+
+
+    def download_train_data(self):
+        train = datasets.CIFAR10('./data', train=True, download=True, transform=self.train_transforms)
+        return train
+
+    def download_test_data(self):
+        test = datasets.CIFAR10('./data', train=False, download=False, transform=self.test_transforms)
+        return test
 
 
 
@@ -84,12 +77,17 @@ class SampleData:
 
   def show_misclassified_images(self, images, original_labels, predicted_labels, classes):
     indices = random.sample(range(1, len(images)), 25)
+
     images = [i.cpu() for i in images]
-    images = [images[i] for i in indices]
     original_labels = [i.cpu() for i in original_labels]
-    original_labels = [original_labels[i] for i in indices]
     predicted_labels = [i.cpu() for i in predicted_labels]
+
+    original_labels = [original_labels[i] for i in indices]
     predicted_labels = [predicted_labels[i] for i in indices]
+    images = [images[i] for i in indices]
+
+    print(len(original_labels), len(predicted_labels), len(images))
+
     fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(12, 15))
     axs = axs.ravel()
     for i, ax in enumerate(axs):

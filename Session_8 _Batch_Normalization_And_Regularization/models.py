@@ -1,14 +1,6 @@
 from __future__ import print_function
-
-import warnings
-
-warnings.filterwarnings("ignore")
-!pip install summary
-from __future__ import print_function
 import torch.nn as nn
 import torch.nn.functional as F
-import warnings
-warnings.filterwarnings("ignore")
 
 class S7Model1(nn.Module):
     def __init__(self):
@@ -315,22 +307,22 @@ class ModelBN(nn.Module):
 
         #Inout block
         self.convblock1 = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.BatchNorm2d(32),
+            nn.BatchNorm2d(16),
           	nn.Dropout(self.dropout_value)
         )
 
         #CONVBLOCK 1
         self.convblock2 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.BatchNorm2d(32),
+            nn.BatchNorm2d(16),
           	nn.Dropout(self.dropout_value)
         )
         #TRANSITIONBLOCK 1
         self.convblock3 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=1, padding=0, bias=False),
             nn.ReLU(),
             nn.BatchNorm2d(32),
           	nn.Dropout(self.dropout_value)
@@ -358,59 +350,79 @@ class ModelBN(nn.Module):
           	nn.Dropout(self.dropout_value)
         )
         self.convblock7 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=32, out_channels=16, kernel_size=1, padding=0, bias=False),
             nn.ReLU(),
-            nn.BatchNorm2d(32),
+            nn.BatchNorm2d(16),
           	nn.Dropout(self.dropout_value)
         )
         self.pool2 = nn.MaxPool2d(2, 2)
 
 
         self.convblock8 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.BatchNorm2d(32),
+            nn.BatchNorm2d(16),
           	nn.Dropout(self.dropout_value)
         )
         self.convblock9 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.BatchNorm2d(32),
+            nn.BatchNorm2d(16),
           	nn.Dropout(self.dropout_value)
         )
         self.convblock10 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=16, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=1, padding=1, bias=False),
             nn.ReLU(),
-            nn.BatchNorm2d(16),
+            nn.BatchNorm2d(32),
           	nn.Dropout(self.dropout_value)
         )
 
         #GAP LAYER
         self.gap = nn.Sequential(
-            nn.AvgPool2d(kernel_size=6)
+            nn.AvgPool2d(kernel_size=4)
             )
 
         #OUTPUT BLOCK
         self.convblock11 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=10, kernel_size=(1, 1), padding=1, bias=False)
+            nn.Conv2d(in_channels=32, out_channels=10, kernel_size=(1, 1), padding=1, bias=False)
             )
 
+        self.linear = nn.Linear(160,10)
+
     def forward(self, x):
+        # print(f'input shape: {x.shape}')
         x = self.convblock1(x)
+        # print(f'conv1 shape: {x.shape}')
         x = x+self.convblock2(x)
+        # print(f'conv2 shape: {x.shape}')
         x = self.convblock3(x)
+        # print(f'conv3 shape: {x.shape}')
         x = self.pool1(x)
+        # print(f'pool1 shape: {x.shape}')
         x = self.convblock4(x)
-        x = x + self.convblock5(x)
+        # print(f'conv4 shape: {x.shape}')
+        x = self.convblock5(x)
+        # print(f'conv5 shape: {x.shape}')
         x = x + self.convblock6(x)
+        # print(f'conv6 shape: {x.shape}')
         x = self.convblock7(x)
+        # print(f'conv7 shape: {x.shape}')
         x = self.pool2(x)
-        x = x+self.convblock8(x)
+        # print(f'pool2 shape: {x.shape}')
+        x = self.convblock8(x)
+        # print(f'conv8 shape: {x.shape}')
         x = x+self.convblock9(x)
+        # print(f'conv9 shape: {x.shape}')
         x = self.convblock10(x)
+        # print(f'conv10 shape: {x.shape}')
         x = self.gap(x)
+        # print(f'gap shape: {x.shape}')
         x = self.convblock11(x)
-        x = x.view(-1, 90)
+        # print(f'conv11 shape: {x.shape}')
+        # x = x.view(-1, 160)
+        x = x.view(x.size(0), -1)
+        # print(f'view shape: {x.shape}')
+        x = self.linear(x)
         return F.log_softmax(x, dim=1)
 
 
@@ -427,25 +439,26 @@ class ModelGN(nn.Module):
 
         #Inout block
         self.convblock1 = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(1, 32),
+            nn.GroupNorm(4, 16),
           	nn.Dropout(self.dropout_value)
         )
 
         #CONVBLOCK 1
         self.convblock2 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 32),
-          	nn.Dropout(self.dropout_value))
-
+            nn.GroupNorm(4, 16),
+          	nn.Dropout(self.dropout_value)
+        )
         #TRANSITIONBLOCK 1
         self.convblock3 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=1, padding=0, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 32),
-          	nn.Dropout(self.dropout_value))
+            nn.GroupNorm(4, 32),
+          	nn.Dropout(self.dropout_value)
+        )
         self.pool1 = nn.MaxPool2d(2, 2)
 
 
@@ -453,50 +466,60 @@ class ModelGN(nn.Module):
         self.convblock4 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 32),
-          	nn.Dropout(self.dropout_value))
+            nn.GroupNorm(4, 32),
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock5 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 32),
-          	nn.Dropout(self.dropout_value))
+            nn.GroupNorm(4, 32),
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock6 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 32),
-          	nn.Dropout(self.dropout_value))
+            nn.GroupNorm(4, 32),
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock7 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=32, out_channels=16, kernel_size=1, padding=0, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 32),
-          	nn.Dropout(self.dropout_value))
+            nn.GroupNorm(4, 16),
+          	nn.Dropout(self.dropout_value)
+        )
         self.pool2 = nn.MaxPool2d(2, 2)
 
 
         self.convblock8 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 32),
-          	nn.Dropout(self.dropout_value))
+            nn.GroupNorm(4, 16),
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock9 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 32),
-          	nn.Dropout(self.dropout_value))
+            nn.GroupNorm(4, 16),
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock10 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=16, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=1, padding=1, bias=False),
             nn.ReLU(),
-            nn.GroupNorm(2, 16),
+            nn.GroupNorm(4, 32),
           	nn.Dropout(self.dropout_value)
         )
 
         #GAP LAYER
         self.gap = nn.Sequential(
-            nn.AvgPool2d(kernel_size=6))
+            nn.AvgPool2d(kernel_size=4)
+            )
 
         #OUTPUT BLOCK
         self.convblock11 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=10, kernel_size=(1, 1), padding=1, bias=False))
+            nn.Conv2d(in_channels=32, out_channels=10, kernel_size=(1, 1), padding=1, bias=False)
+            )
+
+        self.linear = nn.Linear(160,10)
 
     def forward(self, x):
         x = self.convblock1(x)
@@ -504,16 +527,17 @@ class ModelGN(nn.Module):
         x = self.convblock3(x)
         x = self.pool1(x)
         x = self.convblock4(x)
-        x = x + self.convblock5(x)
+        x = self.convblock5(x)
         x = x + self.convblock6(x)
         x = self.convblock7(x)
         x = self.pool2(x)
-        x = x+self.convblock8(x)
+        x = self.convblock8(x)
         x = x+self.convblock9(x)
         x = self.convblock10(x)
         x = self.gap(x)
         x = self.convblock11(x)
-        x = x.view(-1, 90)
+        x = x.view(x.size(0), -1)
+        x = self.linear(x)
         return F.log_softmax(x, dim=1)
 
 
@@ -544,7 +568,7 @@ class ModelLN(nn.Module):
 
         #Inout block
         self.convblock1 = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
             LayerNorm(),
           	nn.Dropout(self.dropout_value)
@@ -552,17 +576,18 @@ class ModelLN(nn.Module):
 
         #CONVBLOCK 1
         self.convblock2 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
             LayerNorm(),
-          	nn.Dropout(self.dropout_value))
-
+          	nn.Dropout(self.dropout_value)
+        )
         #TRANSITIONBLOCK 1
         self.convblock3 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=1, padding=0, bias=False),
             nn.ReLU(),
             LayerNorm(),
-          	nn.Dropout(self.dropout_value))
+          	nn.Dropout(self.dropout_value)
+        )
         self.pool1 = nn.MaxPool2d(2, 2)
 
 
@@ -571,37 +596,43 @@ class ModelLN(nn.Module):
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
             LayerNorm(),
-          	nn.Dropout(self.dropout_value))
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock5 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
             LayerNorm(),
-          	nn.Dropout(self.dropout_value))
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock6 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
             LayerNorm(),
-          	nn.Dropout(self.dropout_value))
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock7 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=32, out_channels=16, kernel_size=1, padding=0, bias=False),
             nn.ReLU(),
             LayerNorm(),
-          	nn.Dropout(self.dropout_value))
+          	nn.Dropout(self.dropout_value)
+        )
         self.pool2 = nn.MaxPool2d(2, 2)
 
 
         self.convblock8 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
             LayerNorm(),
-          	nn.Dropout(self.dropout_value))
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock9 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=self.kernel_size, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=self.kernel_size, padding=1, bias=False),
             nn.ReLU(),
             LayerNorm(),
-          	nn.Dropout(self.dropout_value))
+          	nn.Dropout(self.dropout_value)
+        )
         self.convblock10 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=16, kernel_size=1, padding=1, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=1, padding=1, bias=False),
             nn.ReLU(),
             LayerNorm(),
           	nn.Dropout(self.dropout_value)
@@ -609,11 +640,15 @@ class ModelLN(nn.Module):
 
         #GAP LAYER
         self.gap = nn.Sequential(
-            nn.AvgPool2d(kernel_size=6))
+            nn.AvgPool2d(kernel_size=4)
+            )
 
         #OUTPUT BLOCK
         self.convblock11 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=10, kernel_size=(1, 1), padding=1, bias=False))
+            nn.Conv2d(in_channels=32, out_channels=10, kernel_size=(1, 1), padding=1, bias=False)
+            )
+
+        self.linear = nn.Linear(160,10)
 
     def forward(self, x):
         x = self.convblock1(x)
@@ -621,14 +656,15 @@ class ModelLN(nn.Module):
         x = self.convblock3(x)
         x = self.pool1(x)
         x = self.convblock4(x)
-        x = x + self.convblock5(x)
+        x = self.convblock5(x)
         x = x + self.convblock6(x)
         x = self.convblock7(x)
         x = self.pool2(x)
-        x = x+self.convblock8(x)
+        x = self.convblock8(x)
         x = x+self.convblock9(x)
         x = self.convblock10(x)
         x = self.gap(x)
         x = self.convblock11(x)
-        x = x.view(-1, 90)
+        x = x.view(x.size(0), -1)
+        x = self.linear(x)
         return F.log_softmax(x, dim=1)

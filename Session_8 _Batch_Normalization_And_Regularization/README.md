@@ -26,7 +26,15 @@
 
 
 ### Solution:
-    The main code is in this [notebook](https://github.com/Nishant7007/ERA_V1/blob/main/Session_8%20_Batch_Normalization_And_Regularization/main.ipynb)
+The main code is in this [notebook](https://github.com/Nishant7007/ERA_V1/blob/main/Session_8%20_Batch_Normalization_And_Regularization/main.ipynb)
+
+Following are the accuracies for all the three normalisaton techniques:
+
+| **Normalisation**     | **Number of parameters** | **Train Accuracy** | **Test Accuracy** | 
+|-----------------------|--------------------------|--------------------|-------------------|
+| Batch Normalisation   | 38,458                   | 74.77%             | 74.05%            |
+| Layer Normalisation   | 38,458                   | 72.53%             | 72.91%              |
+| Group Normalisation   | 38,458                   |                    |                   |
 ####
     Following are some of the sample images:
  ![Getting Started](sample_images.png)   
@@ -35,7 +43,7 @@
     we started with Batch Normalisation. Following are the results of last 10 epochs
  ![Getting Started](BN_epochs.png)
 ####
-     We got training accuracy of 17.77% and test accuracy of 18.41%
+     We got training accuracy of 74.77% and test accuracy of 74.05%
 ####
     Following are the accuracy and loss plots for training and test set
  ![Getting Started](performance_BN.png)
@@ -48,7 +56,7 @@
     Then we tried Batch Normalisation. Following are the results of last 10 epochs
  ![Getting Started](LN_epochs.png)
 ####
-     We got training accuracy of 14.76% and test accuracy of 14.68%
+     We got training accuracy of 72.53% and test accuracy of 72.91%
 ####
     Following are the accuracy and loss plots for training and test set
  ![Getting Started](performance_LN.png)
