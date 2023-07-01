@@ -33,7 +33,7 @@
 
 | Number of Parameters | Train Accuracy | Test Accuracy |
 |----------------------|----------------|---------------|
-| 189,978              | 81%            | 83%           |
+| 189,978              | 79.52%         | 84.69%        |
 
 ![performance](performance.png)
 
